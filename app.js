@@ -4,6 +4,66 @@ let courses = [];
 const $ = id => document.getElementById(id);
 const cfg = window.PRESENTLY_CONFIG;
 
+let deferredInstallPrompt = null;
+
+function isInstalledPwa(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+function isIOS(){
+  return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+}
+
+function setupInstallPrompt(){
+  const installPrompt = $('installPrompt');
+  const signInPrompt = $('signInPrompt');
+  const installBtn = $('installBtn');
+  const installTitle = $('installTitle');
+  const installText = $('installText');
+
+  if(isInstalledPwa()){
+    installPrompt.classList.add('hidden');
+    signInPrompt.classList.remove('hidden');
+    return;
+  }
+
+  installPrompt.classList.remove('hidden');
+  signInPrompt.classList.add('hidden');
+
+  if(isIOS()){
+    installTitle.textContent = 'Add Presently to Home Screen';
+    installText.textContent = 'Tap Share in Safari, then choose “Add to Home Screen”.';
+    installBtn.textContent = 'Add Presently to Home Screen';
+    installBtn.onclick = () => alert('In Safari, tap Share, then choose “Add to Home Screen”.');
+    return;
+  }
+
+  installTitle.textContent = 'Install Presently';
+  installText.textContent = 'Add Presently to your Home Screen to continue.';
+  installBtn.textContent = 'Install Presently';
+  installBtn.onclick = async () => {
+    if(!deferredInstallPrompt){
+      alert('Use your browser menu to install Presently or add it to your Home Screen.');
+      return;
+    }
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    setupInstallPrompt();
+  };
+}
+
+window.addEventListener('beforeinstallprompt', event => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  setupInstallPrompt();
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  setupInstallPrompt();
+});
+
 function showMessage(text, type='') { const el=$('message'); el.textContent=text; el.className='card '+(type==='error'?'error':''); el.classList.remove('hidden'); }
 function clearMessage(){ $('message').classList.add('hidden'); }
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
@@ -48,6 +108,6 @@ async function viewAttendance(id){try{const d=await api('attendanceForTraining',
 function logout(){currentUser=null;idToken=null;location.reload();}
 $('logout').onclick=logout;
 function renderGoogleButton(){if(window.google && !currentUser){google.accounts.id.initialize({client_id:cfg.GOOGLE_CLIENT_ID,callback:handleCredentialResponse});google.accounts.id.renderButton($('googleBtn'),{theme:'outline',size:'large',width:280});}}
-window.onload=()=>renderGoogleButton();
-window.addEventListener('load',()=>setTimeout(renderGoogleButton,800));
+window.onload=()=>{ setupInstallPrompt(); renderGoogleButton(); };
+window.addEventListener('load',()=>setTimeout(()=>{ setupInstallPrompt(); renderGoogleButton(); },800));
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
