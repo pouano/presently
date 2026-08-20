@@ -1,0 +1,10 @@
+{
+  "name": "Presently",
+  "short_name": "Presently",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#111827",
+  "description": "Simple location-verified attendance.",
+  "icons": [{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
