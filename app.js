@@ -124,3 +124,20 @@ function renderGoogleButton(){if(window.google&&!currentUser){google.accounts.id
 window.onload=()=>{setupInstallPrompt();renderGoogleButton();};
 window.addEventListener('load',()=>setTimeout(()=>{setupInstallPrompt();renderGoogleButton();},800));
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+
+function showError(message) {
+  console.error(message);
+  const el = document.getElementById('appError');
+  if (el) {
+    el.textContent = message;
+    el.style.display = 'block';
+  } else {
+    const host = document.body;
+    const div = document.createElement('div');
+    div.id = 'appError';
+    div.style.cssText = 'margin:12px auto;padding:10px;max-width:900px;border:1px solid #d33;border-radius:8px;background:#fff4f4;color:#8a0000;font-size:14px;';
+    div.textContent = message;
+    host.prepend(div);
+  }
+}
