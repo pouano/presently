@@ -18,7 +18,6 @@ function setupInstallPrompt(){
   const installPrompt = $('installPrompt');
   const signInPrompt = $('signInPrompt');
   const installBtn = $('installBtn');
-  const installTitle = $('installTitle');
   const installText = $('installText');
 
   if(isInstalledPwa()){
@@ -29,16 +28,15 @@ function setupInstallPrompt(){
 
   installPrompt.classList.remove('hidden');
   signInPrompt.classList.add('hidden');
+  installBtn.classList.remove('hidden');
 
   if(isIOS()){
-    installTitle.textContent = 'Add Presently to Home Screen';
-    installText.textContent = 'Tap Share in Safari, then choose “Add to Home Screen”.';
+    installText.textContent = 'In Safari, tap Share, then choose “Add to Home Screen”.';
     installBtn.textContent = 'Add Presently to Home Screen';
     installBtn.onclick = () => alert('In Safari, tap Share, then choose “Add to Home Screen”.');
     return;
   }
 
-  installTitle.textContent = 'Install Presently';
   installText.textContent = 'Add Presently to your Home Screen to continue.';
   installBtn.textContent = 'Install Presently';
   installBtn.onclick = async () => {
